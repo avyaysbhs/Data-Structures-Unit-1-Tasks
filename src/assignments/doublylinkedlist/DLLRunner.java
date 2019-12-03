@@ -1,8 +1,6 @@
 package assignments.doublylinkedlist;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class DLLRunner {
     public static void test(DoublyLinkedList<Integer> list)

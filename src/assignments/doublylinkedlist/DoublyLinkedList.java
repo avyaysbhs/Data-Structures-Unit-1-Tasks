@@ -78,7 +78,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     public void add(int index, T value)
     {
-        if (index > _size || index < 0) throw new IndexOutOfBoundsException();
+        if (index > _size || index < 0) throw new ArrayIndexOutOfBoundsException();
         if (index == _size) if (add(value)) return;
         if (index == 0)
         {
@@ -141,13 +141,13 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     public T getRoot()
     {
-        if (_size < 1) throw new IndexOutOfBoundsException();
+        if (_size < 1) throw new ArrayIndexOutOfBoundsException();
         return _rootNode.value;
     }
 
     public T getEnd()
     {
-        if (_size < 1) throw new IndexOutOfBoundsException();
+        if (_size < 1) throw new ArrayIndexOutOfBoundsException();
         return _size > 1 ? _endNode.value : _rootNode.value;
     }
 
@@ -157,7 +157,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
         for (int i=0;i<index;i++)
         {
             if (node.next == null)
-                throw new IndexOutOfBoundsException();
+                throw new ArrayIndexOutOfBoundsException();
             node = node.next;
         }
         return node;
@@ -169,7 +169,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
         for (int i=0;i<index;i++)
         {
             if (node.previous == null)
-                throw new IndexOutOfBoundsException();
+                throw new ArrayIndexOutOfBoundsException();
             node = node.previous;
         }
         return node;
@@ -177,7 +177,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     public T get(int index)
     {
-        if (index > _size - 1 || index < 0) throw new IndexOutOfBoundsException();
+        if (index > _size - 1 || index < 0) throw new ArrayIndexOutOfBoundsException();
         if (_size/2 - index >= 0)
         {
             return track_from_root(index).value;
