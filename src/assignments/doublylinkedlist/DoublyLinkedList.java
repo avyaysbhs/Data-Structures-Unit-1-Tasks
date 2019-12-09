@@ -1,6 +1,9 @@
 package assignments.doublylinkedlist;
 
+import assignments.FunctionalList;
+
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Avyay Natarajan
@@ -8,7 +11,7 @@ import java.util.*;
  *  - implement java.util.List<T>
  * @param <T>
  */
-public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
+public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList<T> {
     private Node<T> _rootNode;
     private Node<T> _endNode;
     private volatile int _size;
@@ -29,6 +32,9 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
             this.next = next;
             next.previous = this;
         }
+
+        public boolean hasNext() { return next != null; }
+        public boolean hasPrevious() { return previous != null; }
 
         public void eject()
         {
@@ -74,6 +80,13 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
             _size = 1;
         }
         return true;
+    }
+
+    public DoublyLinkedList<T> clone()
+    {
+        DoublyLinkedList<T> out = new DoublyLinkedList<>();
+        forEach(out::add);
+        return out;
     }
 
     public void add(int index, T value)
@@ -184,42 +197,25 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
         } else return track_from_end(_size - index - 1).value;
     }
 
+    public DoublyLinkedList<T> reverse()
+    {
+        DoublyLinkedList<T> out = new DoublyLinkedList<>();
+        forEach(e -> out.add(0, e));
+        return out;
+    }
+
     public int size()
     {
         return _size;
     }
-
     @Override
     public boolean remove(Object o) {
         return false;
     }
 
-    static class DLNodeIterator<T> implements Iterator<T>
-    {
-        private Node<T> root;
-        private int step;
-
-        public DLNodeIterator(Node<T> root, int size)
-        {
-            this.root = root; this.step = size;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return step > 0 || root != null && root.next != null;
-        }
-
-        @Override
-        public T next() {
-            synchronized (this) {
-                try {
-                    return root.value;
-                } finally {
-                    step--;
-                    root = root.next;
-                }
-            }
-        }
+    public T next() {
+        remove(0);
+        return _rootNode.value;
     }
 
     @Override
@@ -260,17 +256,33 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
-        return false;
+        try
+        {
+            AtomicInteger i = new AtomicInteger(index);
+            c.forEach(e ->
+            {
+                this.add(i.getAndIncrement(), e);
+            });
+            return true;
+        } catch (Exception e)
+        {
+            return false;
+        }
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;
+        c.forEach(this::remove);
+        return true;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        for (int i=0;i<_size;i++)
+            if (!c.contains(get(i))) {
+                remove(i); i--;
+            }
+        return true;
     }
 
     @Override
@@ -286,7 +298,25 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     @Override
     public T set(int index, T element) {
-        return null;
+        if (index < 0 || index >= _size)
+            throw new ArrayIndexOutOfBoundsException();
+        Node<T> insertion = new Node<>(element);
+        Node<T> old;
+        if (_size/2 - index >= 0)
+            old = track_from_root(index);
+        else old = track_from_end(_size - index - 1);
+
+        if (old.hasNext())
+            old.next.previous = insertion;
+        else if (old == _endNode)
+            _endNode = insertion;
+
+        if (old.hasPrevious())
+            old.previous.next = insertion;
+        else if (old == _rootNode)
+            _rootNode = insertion;
+
+        old.eject(); old.dispose(); return element;
     }
 
     @Override
@@ -331,12 +361,24 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
 
     @Override
     public int indexOf(Object o) {
-        return 0;
+        for (int i=0; i<_size; i++)
+            if (get(i) == o) return i;
+        return -1;
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        return 0;
+        for (int i=_size-1; i>0; i--)
+            if (get(i) == o) return i;
+        return -1;
+    }
+
+    @Override
+    public List<T> subList(int fromIndex, int toIndex) {
+        DoublyLinkedList<T> out = new DoublyLinkedList<>();
+        for (fromIndex = fromIndex; fromIndex < toIndex; fromIndex++)
+            out.add(get(fromIndex));
+        return out;
     }
 
     @Override
@@ -350,17 +392,38 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
     }
 
     @Override
-    public List<T> subList(int fromIndex, int toIndex) {
-        DoublyLinkedList<T> out = new DoublyLinkedList<>();
-        for (fromIndex = fromIndex; fromIndex < toIndex; fromIndex++)
-            out.add(get(fromIndex));
-        return out;
+    public Iterator<T> iterator() {
+        return new DoublyLinkedIterator<T>(_rootNode, _size);
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        return new DLNodeIterator<T>(_rootNode, _size);
+    protected static class DoublyLinkedIterator<E> implements Iterator<E> {
+        private Node<E> root;
+        private int step;
+
+        public DoublyLinkedIterator(Node<E> root, int size) {
+            this.root = root;
+            this.step = size;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return step > 0 || root != null && root.next != null;
+        }
+
+        @Override
+        public E next() {
+            synchronized (this) {
+                try {
+                    return root.value;
+                } finally {
+                    step--;
+                    root = root.next;
+                }
+            }
+        }
     }
+
+
 
     public String toString()
     {
@@ -376,4 +439,20 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T> {
         }
         return out + "]";
     }
+
+    public String toReversedString()
+    {
+        String out = "]";
+        Iterator<T> iterator = iterator();
+        while (iterator.hasNext())
+        {
+            out = String.valueOf(iterator.next()) + out;
+            if (iterator.hasNext())
+            {
+                out = ", " + out;
+            }
+        }
+        return "[" + out;
+    }
+
 }
