@@ -1,5 +1,7 @@
 package assignments.doublylinkedlist;
 
+import assignments.FunctionalList;
+
 import java.util.*;
 
 public class DLLTest {
@@ -60,15 +62,15 @@ public class DLLTest {
 
     public static void main(String[] args)
     {
-        DoublyLinkedList<Integer> list = new DoublyLinkedList<>(Arrays.asList(new Integer[] {1,2,3,4,5,6,7,8}));
-        DoublyLinkedList<Integer> list2 = list.clone();
-        list2.remove(4);
-        list2.remove(6);
+        DoublyLinkedList<Integer> list = new DoublyLinkedList<>();
+
+        for (int i=0;i<40;i++)
+        {
+            list.add((int) (Math.random() * 70));
+        }
 
         System.out.println(list);
-        list.remove(4);
-        System.out.println(list2);
-        list.retainAll(list2);
+        Collections.sort(list);
         System.out.println(list);
 
         //test(list);

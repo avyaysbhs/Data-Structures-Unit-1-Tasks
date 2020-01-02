@@ -40,8 +40,11 @@ public interface FunctionalList<E> extends List<E> {
         FunctionalList<E> out = new DoublyLinkedList<>();
         int n = size();
         for (int i = 1; i < n; ++i) {
+            System.out.println(i + " " + size());
+
             E key = get(i);
             int j = i - 1;
+
 
             while (j >= 0 && function.compare(get(j), key)) {
                 set(j + 1, get(j));
@@ -57,7 +60,7 @@ public interface FunctionalList<E> extends List<E> {
     {
         list.sort((Comparison<E>) (b, a) ->
         {
-            return b.compareTo(a) == 1;
+            return b.compareTo(a) >= 1;
         });
     }
 }
