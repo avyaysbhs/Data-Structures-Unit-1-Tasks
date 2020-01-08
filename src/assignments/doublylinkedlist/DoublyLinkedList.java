@@ -215,7 +215,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
 
     public T next() {
         remove(0);
-        return _rootNode.value;
+        return _rootNode == null ? null : _rootNode.value;
     }
 
     @Override
@@ -232,13 +232,11 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
 
     @Override
     public Object[] toArray() {
-        Object[] out = new Object[_size];
+        Object[] out = (T[]) new Object[_size];
         Iterator<T> iterator = iterator();
         int index = 0;
         while (iterator.hasNext())
-        {
-            out[index] = iterator.next(); index++;
-        }
+            out[index++] = iterator.next();
         return out;
     }
 
@@ -272,7 +270,8 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        c.forEach(this::remove);
+        for (Object o: c)
+            if (!this.remove(o)) return false;
         return true;
     }
 
@@ -383,17 +382,90 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
 
     @Override
     public ListIterator<T> listIterator() {
-        return null;
+        return new DoublyLinkedListIterator<T>(this);
     }
 
     @Override
     public ListIterator<T> listIterator(int index) {
-        return null;
+        return new DoublyLinkedListIterator<T>(index, this);
     }
 
     @Override
     public Iterator<T> iterator() {
         return new DoublyLinkedIterator<T>(_rootNode, _size);
+    }
+
+    protected static class DoublyLinkedListIterator<T> implements ListIterator<T> {
+        private Node<T> lastReturned = null;
+        private Node<T> next;
+        private Node<T> first;
+        private Node<T> last;
+        private int nextIndex;
+        int size;
+
+        DoublyLinkedListIterator(int index, DoublyLinkedList<T> list) {
+            next = (index == list.size()) ? null : list.track_from_root(index);
+            nextIndex = index;
+            first = list.track_from_root(0);
+            last = list.track_from_end(0);
+        }
+
+        DoublyLinkedListIterator(DoublyLinkedList<T> list)
+        {
+            this(0, list);
+        }
+
+        public boolean hasNext() {
+            return nextIndex < size;
+        }
+
+        public T next() {
+            if (!hasNext())
+                throw new NoSuchElementException();
+
+            lastReturned = next;
+            next = next.next;
+            nextIndex++;
+            return lastReturned.value;
+        }
+
+        public boolean hasPrevious() {
+            return nextIndex > 0;
+        }
+
+        public T previous() {
+            if (!hasPrevious())
+                throw new NoSuchElementException();
+
+            lastReturned = next = (next == null) ? last : next.previous;
+            nextIndex--;
+            return lastReturned.value;
+        }
+
+        @Override
+        public int nextIndex() {
+            return nextIndex;
+        }
+
+        @Override
+        public int previousIndex() {
+            return nextIndex - 1;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+
+        @Override
+        public void set(T t) {
+
+        }
+
+        @Override
+        public void add(T t) {
+
+        }
     }
 
     protected static class DoublyLinkedIterator<E> implements Iterator<E> {
@@ -422,8 +494,6 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
             }
         }
     }
-
-
 
     public String toString()
     {

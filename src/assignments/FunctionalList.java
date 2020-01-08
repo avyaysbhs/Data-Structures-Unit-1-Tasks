@@ -23,7 +23,7 @@ public interface FunctionalList<E> extends List<E> {
 
     default <O> FunctionalList<O> map(Function<E, O> function)
     {
-        FunctionalList<O> out = new DoublyLinkedList<>();
+        FunctionalList<O> out = new DoublyLinkedList<O>();
         forEach(e -> out.add(function.process(e)));
         return out;
     };
