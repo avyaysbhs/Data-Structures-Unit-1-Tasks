@@ -21,6 +21,7 @@ public interface FunctionalList<E> extends List<E> {
         boolean compare(E a, E b);
     }
 
+    /*
     default <O> FunctionalList<O> map(Function<E, O> function)
     {
         FunctionalList<O> out = new DoublyLinkedList<O>();
@@ -63,4 +64,5 @@ public interface FunctionalList<E> extends List<E> {
             return b.compareTo(a) >= 1;
         });
     }
+     */
 }

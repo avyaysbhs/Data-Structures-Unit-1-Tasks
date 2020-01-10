@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *  - implement java.util.List<T>
  * @param <T>
  */
-public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList<T> {
+public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalList<T>*/ {
     private Node<T> _rootNode;
     private Node<T> _endNode;
     private volatile int _size;
@@ -49,6 +49,8 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
             next = null;
             previous = null;
         }
+
+        public String toString() { return String.valueOf(value); }
     }
 
     public DoublyLinkedList(Collection<? extends T> collection)
@@ -167,10 +169,10 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
     private Node<T> track_from_root(int index)
     {
         Node<T> node = _rootNode;
-        for (int i=0;i<index;i++)
+        for (int i=0;i<index-1;i++)
         {
-            if (node.next == null)
-                throw new ArrayIndexOutOfBoundsException();
+            //System.out.println(i + "=" + node + ", root=" + _rootNode + ", size=" + _size + ", 0th=" + track_from_root(0));
+            if (!node.hasNext()) throw new ArrayIndexOutOfBoundsException();
             node = node.next;
         }
         return node;
@@ -314,7 +316,6 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
             old.previous.next = insertion;
         else if (old == _rootNode)
             _rootNode = insertion;
-
         old.eject(); old.dispose(); return element;
     }
 
@@ -400,6 +401,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
         private Node<T> next;
         private Node<T> first;
         private Node<T> last;
+        private DoublyLinkedList<T> list;
         private int nextIndex;
         int size;
 
@@ -408,6 +410,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
             nextIndex = index;
             first = list.track_from_root(0);
             last = list.track_from_end(0);
+            this.list = list;
         }
 
         DoublyLinkedListIterator(DoublyLinkedList<T> list)
@@ -420,9 +423,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
         }
 
         public T next() {
-            if (!hasNext())
-                throw new NoSuchElementException();
-
+            assert hasNext();
             lastReturned = next;
             next = next.next;
             nextIndex++;
@@ -436,7 +437,6 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
         public T previous() {
             if (!hasPrevious())
                 throw new NoSuchElementException();
-
             lastReturned = next = (next == null) ? last : next.previous;
             nextIndex--;
             return lastReturned.value;
@@ -454,17 +454,18 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
 
         @Override
         public void remove() {
-
+            list.remove(lastReturned.value);
+            nextIndex--;
         }
 
         @Override
         public void set(T t) {
-
+            list.set(nextIndex - 1, t);
         }
 
         @Override
         public void add(T t) {
-
+            list.add(nextIndex - 1, t);
         }
     }
 
@@ -503,9 +504,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>, FunctionalList
         {
             out += String.valueOf(iterator.next());
             if (iterator.hasNext())
-            {
                 out += ", ";
-            }
         }
         return out + "]";
     }
