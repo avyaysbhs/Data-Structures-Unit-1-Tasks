@@ -1,9 +1,5 @@
 package assignments.doublylinkedlist;
 
-import assignments.FunctionalList;
-
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -17,9 +13,11 @@ public class MyDLLRunner {
             int key = arr.get(i);
             int j = i-1;
 
-            /* Move elements of arr[0..i-1], that are
-               greater than key, to one position ahead
-               of their current position */
+            /*
+             Move elements of arr[0..i-1], that are
+             greater than key, to one position ahead
+             of their current position
+            */
             while (j>=0 && arr.get(j) > key)
             {
                 arr.set(j+1, arr.get(j));
