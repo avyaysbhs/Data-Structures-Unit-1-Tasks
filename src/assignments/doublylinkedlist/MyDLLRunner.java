@@ -38,9 +38,9 @@ public class MyDLLRunner {
         System.out.println("List size: " + list.size());
         System.out.println("Sum: " + list.stream().reduce((b, a) -> b + a).get());
         AtomicBoolean bool = new AtomicBoolean(true);
-        System.out.println("Sum of even indexed values: " + list.stream().filter(e -> bool.getAndSet(!bool.get())).reduce((b, a) -> b + a).get());
+        System.out.println("Sum of even indexed values: " + list.stream().filter(e -> bool.getAndSet(!bool.get())).reduce(Integer::sum).orElse(-1));
         bool.set(false);
-        System.out.println("Sum of odd indexed values: " + list.stream().filter(e -> bool.getAndSet(!bool.get())).reduce((b, a) -> b + a).get());
+        System.out.println("Sum of odd indexed values: " + list.stream().filter(e -> bool.getAndSet(!bool.get())).reduce(Integer::sum).orElse(-1));
         System.out.println("Duplicating all even values in the list and adding them to the end...");
         list.addAll(list.stream().filter(e -> e % 2 == 0).collect(Collectors.toList()));
         System.out.println("List: " + list);
