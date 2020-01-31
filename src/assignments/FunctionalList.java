@@ -1,22 +1,19 @@
 package assignments;
 
-import assignments.doublylinkedlist.DoublyLinkedList;
-
-import java.util.Collections;
 import java.util.List;
 
 public interface FunctionalList<E> extends List<E> {
-    public static interface Function<I, O>
+    interface Function<I, O>
     {
         O process(I in);
     }
 
-    public static interface Filter<E>
+    interface Filter<E>
     {
         boolean filter(E in);
     }
 
-    public static interface Comparison<E>
+    interface Comparison<E>
     {
         boolean compare(E a, E b);
     }

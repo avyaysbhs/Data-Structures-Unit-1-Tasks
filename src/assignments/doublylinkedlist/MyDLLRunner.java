@@ -1,5 +1,8 @@
 package assignments.doublylinkedlist;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -50,6 +53,28 @@ public class MyDLLRunner {
         list.add(3, 55555);
         System.out.println("Inserted 55555 into list[3] || 4th position: " + list);
         sort(list);
-        System.out.println("Sorted list in ascending order: " + list);
+        System.out.println("Sorted list in ascending order (Standard insertion sort): " + list);
+        list.sort(Comparator.naturalOrder());
+        System.out.println("Sorted list in ascending order (Stream sort): " + list);
+        //both sorts work
+        System.out.println("Median of the list: " + list.median().stream().mapToInt(Integer::intValue).average().orElse(0));
+
+        list.clear();
+        list = null;
+        // free up memory
+
+        DoublyLinkedList<String> list2 = new DoublyLinkedList<>();
+        list2.addAll(
+            List.<String>of(
+                ("Store a “sentence” in a string and then store each of the words in the sentence in your\n" +
+                "DoublyLinkedList.").split(" ")
+            ));
+        System.out.println("Stored “sentence” in a string and then stored each of the words in the sentence in " +
+                "DoublyLinkedList: " + list2);
+        list2.removeIf(e->{System.out.println(e); return e.length()<=3;});
+        System.out.println("Removed all words with 3 or less characters: " + list2);
+        Collections.sort(list2);
+        System.out.println("Sorted list alphabetically: " + list2);
+
     }
 }

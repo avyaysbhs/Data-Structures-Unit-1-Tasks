@@ -171,22 +171,22 @@ public class DSUtil {
         }
     }
 
-    public static interface NewLineReadProcessor
+    public interface NewLineReadProcessor
     {
         void processNewLine(String s);
     }
 
-    public static interface ReductionOperation<T>
+    public interface ReductionOperation<T>
     {
         T reduce(T a, T b);
     }
 
-    public static interface ComparisonOperation<T>
+    public interface ComparisonOperation<T>
     {
         boolean compare(T a, T b);
     }
 
-    public static interface FilterOperation<T>
+    public interface FilterOperation<T>
     {
         boolean filter(T t);
     }

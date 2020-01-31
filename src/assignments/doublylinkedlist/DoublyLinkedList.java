@@ -1,7 +1,5 @@
 package assignments.doublylinkedlist;
 
-import assignments.FunctionalList;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,15 +64,12 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
         if (_size > 1) {
             Node<T> previous_end = _endNode;
             _endNode = new Node<>(value);
-            _endNode.previous = previous_end;
-            previous_end.next = _endNode;
+            previous_end.link(_endNode);
             _size++;
         } else if (_size > 0)
         {
-            Node<T> _new = new Node<>(value);
-            _rootNode.next = _new;
-            _new.previous = _rootNode;
-            _endNode = _new;
+            _endNode = new Node<>(value);
+            _rootNode.link(_endNode);
             _size = 2;
         } else {
             _rootNode = new Node<>(value);
@@ -87,7 +82,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
     public DoublyLinkedList<T> clone()
     {
         DoublyLinkedList<T> out = new DoublyLinkedList<>();
-        forEach(out::add);
+        out.addAll(this);
         return out;
     }
 
@@ -119,39 +114,46 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
         }
     }
 
+//    public boolean addAll(Collection<? extends T> collection)
+//    {
+//        Node<T> first = null;
+//        Node<T> previous = null;
+//        for (T value: collection)
+//        {
+//            if (previous == null) {
+//                previous = new Node<T>(value);
+//                first = previous;
+//            } else
+//            {
+//                previous.link(new Node<>(value));
+//                previous = previous.next;
+//            }
+//        }
+//        try {
+//            if (_rootNode == null) {
+//                _rootNode = first;
+//                _endNode = previous;
+//                return true;
+//            } else if (collection.size() > 0) {
+//                Node<T> last = _rootNode;
+//                while (last.next != null) {
+//                    last = last.next;
+//                }
+//                last.next = first;
+//                _endNode = previous;
+//                return true;
+//            }
+//            return false;
+//        } finally {
+//            _size += collection.size();
+//        }
+//    }
+
     public boolean addAll(Collection<? extends T> collection)
     {
-        Node<T> first = null;
-        Node<T> previous = null;
-        for (T value: collection)
-        {
-            if (previous == null) {
-                previous = new Node<T>(value);
-                first = previous;
-            } else
-            {
-                previous.link(new Node<>(value));
-                previous = previous.next;
-            }
-        }
-        try {
-            if (_rootNode == null) {
-                _rootNode = first;
-                _endNode = previous;
-                return true;
-            } else if (collection.size() > 0) {
-                Node<T> last = _rootNode;
-                while (last.next != null) {
-                    last = last.next;
-                }
-                last.next = first;
-                _endNode = previous;
-                return true;
-            }
-            return false;
-        } finally {
-            _size += collection.size();
-        }
+        int size = _size;
+        collection.forEach(this::add);
+        return _size == size + collection.size();
     }
 
     public T getRoot()
@@ -169,7 +171,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
     private Node<T> track_from_root(int index)
     {
         Node<T> node = _rootNode;
-        for (int i=0;i<index-1;i++)
+        for (int i=0;i<index;i++)
         {
             //System.out.println(i + "=" + node + ", root=" + _rootNode + ", size=" + _size + ", 0th=" + track_from_root(0));
             if (!node.hasNext()) throw new ArrayIndexOutOfBoundsException();
@@ -181,7 +183,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
     private Node<T> track_from_end(int index)
     {
         Node<T> node = _endNode;
-        for (int i=0;i<index;i++)
+        for (int i=0;i<index-1;i++)
         {
             if (node.previous == null)
                 throw new ArrayIndexOutOfBoundsException();
@@ -192,11 +194,22 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
 
     public T get(int index)
     {
-        if (index > _size - 1 || index < 0) throw new ArrayIndexOutOfBoundsException();
-        if (_size/2 - index >= 0)
-        {
-            return track_from_root(index).value;
-        } else return track_from_end(_size - index - 1).value;
+        if (index >= _size || index < 0) throw new ArrayIndexOutOfBoundsException();
+        return track_from_root(index).value;
+//        if (_size/2 - index >= 0)
+//        {
+//            return track_from_root(index).value;
+//        } else return track_from_end(_size - index - 1).value;
+    }
+
+    public List<T> median()
+    {
+        List<T> out = new ArrayList<>();
+        out.add(get(_size/2-1));
+
+        if (_size % 2 == 0)
+            out.add(get(_size/2));
+        return out;
     }
 
     public DoublyLinkedList<T> reverse()
@@ -234,7 +247,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
 
     @Override
     public Object[] toArray() {
-        Object[] out = (T[]) new Object[_size];
+        Object[] out = new Object[_size];
         Iterator<T> iterator = iterator();
         int index = 0;
         while (iterator.hasNext())
@@ -303,20 +316,22 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
             throw new ArrayIndexOutOfBoundsException();
         Node<T> insertion = new Node<>(element);
         Node<T> old;
-        if (_size/2 - index >= 0)
+        //if (_size/2 - index >= 0)
             old = track_from_root(index);
-        else old = track_from_end(_size - index - 1);
+        //else old = track_from_end(_size - index - 1);
 
         if (old.hasNext())
-            old.next.previous = insertion;
+            insertion.link(old.next);
         else if (old == _endNode)
             _endNode = insertion;
 
         if (old.hasPrevious())
-            old.previous.next = insertion;
+            old.previous.link(insertion);
         else if (old == _rootNode)
             _rootNode = insertion;
-        old.eject(); old.dispose(); return element;
+
+//        old.eject();
+        old.dispose(); return element;
     }
 
     @Override
@@ -471,16 +486,18 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
 
     protected static class DoublyLinkedIterator<E> implements Iterator<E> {
         private Node<E> root;
-        private int step;
+        //private List<E> list;
+        //private int step;
 
         public DoublyLinkedIterator(Node<E> root, int size) {
             this.root = root;
-            this.step = size;
+            //this.list = list;
+            //this.step = size;
         }
 
         @Override
         public boolean hasNext() {
-            return step > 0 || root != null && root.next != null;
+            return root != null;
         }
 
         @Override
@@ -489,10 +506,18 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
                 try {
                     return root.value;
                 } finally {
-                    step--;
+                    //step--;
                     root = root.next;
                 }
             }
+        }
+
+        @Override
+        public void remove() {
+            Node<E> eNode = root.next;
+            root.eject();
+            root.dispose();
+            root = eNode;
         }
     }
 
@@ -515,7 +540,7 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
         Iterator<T> iterator = iterator();
         while (iterator.hasNext())
         {
-            out = String.valueOf(iterator.next()) + out;
+            out = iterator.next() + out;
             if (iterator.hasNext())
             {
                 out = ", " + out;

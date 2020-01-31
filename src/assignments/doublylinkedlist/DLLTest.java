@@ -1,8 +1,6 @@
 package assignments.doublylinkedlist;
 
-import assignments.FunctionalList;
-
-import java.util.*;
+import java.util.Arrays;
 
 public class DLLTest {
     public static void test(DoublyLinkedList<Integer> list)
@@ -51,7 +49,7 @@ public class DLLTest {
         System.out.println(list); list.remove(list.size() - 1);
         System.out.println(list);
 
-        list.addAll(Arrays.asList(new Integer[] {1,2,3,4,5,6,7,8}));
+        list.addAll(Arrays.asList(1,2,3,4,5,6,7,8));
         System.out.println("Can you remove a number from position 0 when the size is greater than 1?");
         list.remove(0);
         System.out.println(list);
@@ -63,6 +61,7 @@ public class DLLTest {
     public static void main(String[] args)
     {
         DoublyLinkedList<Integer> list = new DoublyLinkedList<>();
+        System.out.println(list.addAll(Arrays.asList(1,2,3,4,5,56,6)));
 
         for (int i=0;i<20;i++)
         {
@@ -74,10 +73,10 @@ public class DLLTest {
             System.out.println(a + ", " + b);
             return a.compareTo(b);
         });*/
-        list.set(4, 400);
-        System.out.println(list);
+        list.set(list.size()-1, 400);
+        System.out.println("A" + list);
         list.set(0, 500);
-        System.out.println(list);
+        System.out.println("B" + list);
 
         //test(list);
         //System.out.println(list.subList(9990, 10000) + " " + list.size());
