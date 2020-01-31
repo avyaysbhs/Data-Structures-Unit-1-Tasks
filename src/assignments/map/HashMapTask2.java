@@ -84,7 +84,8 @@ public class HashMapTask2 {
             {
                 try {
                     if (!Modifier.isStatic(f.getModifiers()))
-                        out += "\t" + f.getName() + ": " + f.get(this) + ",\r\n";
+                        //noinspection StringConcatenationInLoop
+                        out += (f.get(this) != null && !f.get(this).equals(".")) ? "\t" + f.getName() + ": " + f.get(this) + ",\r\n" : "";
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -165,6 +166,8 @@ public class HashMapTask2 {
     public static void main(String[] args)
     {
         File file = new File(fileName);
+
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         Collection<Citizen> collection = new ArrayList<>();
 
         try {
@@ -183,5 +186,7 @@ public class HashMapTask2 {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println(collection.parallelStream());
     }
 }
