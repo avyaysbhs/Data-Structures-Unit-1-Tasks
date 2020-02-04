@@ -61,6 +61,21 @@ public class DoublyLinkedList<T> implements Iterable<T>, List<T>/*, FunctionalLi
 
     public boolean add(T value)
     {
+        if(_rootNode==null) {
+            _rootNode=new Node<>(value);
+            _endNode=_rootNode;
+            _size++;
+            return true;
+        }
+        else
+        {
+            Node<T> newNode=new Node<>(value);
+            _endNode.link(newNode);
+            _endNode=newNode;
+            _size++;
+            if (true) return true;
+        }
+
         if (_size > 1) {
             Node<T> previous_end = _endNode;
             _endNode = new Node<>(value);

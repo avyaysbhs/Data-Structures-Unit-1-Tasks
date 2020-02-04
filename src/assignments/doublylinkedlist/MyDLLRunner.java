@@ -1,5 +1,7 @@
 package assignments.doublylinkedlist;
 
+import org.junit.Assert;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +30,27 @@ public class MyDLLRunner {
             }
 
             arr.set(j+1, key);
+        }
+    }
+
+    static void sortStr(List<String> arr)
+    {
+
+        for (int i=0; i<arr.size()-1; i++)
+        {
+            int j = i;
+
+            /*
+             Move elements of arr[0..i-1], that are
+             greater than key, to one position ahead
+             of their current position
+            */
+            try {
+                while (arr.get(j).toUpperCase().compareTo(arr.get(j + 1).toUpperCase()) > 0) {
+                    arr.add(j, arr.remove(j + 1));
+                    j--;
+                }
+            }catch(ArrayIndexOutOfBoundsException e){}
         }
     }
 
@@ -73,8 +96,10 @@ public class MyDLLRunner {
                 "DoublyLinkedList: " + list2);
         list2.removeIf(e->{System.out.println(e); return e.length()<=3;});
         System.out.println("Removed all words with 3 or less characters: " + list2);
-        Collections.sort(list2);
+        //Collections.sort(list2);
+        sortStr(list2);
         System.out.println("Sorted list alphabetically: " + list2);
-
+        Assert.assertEquals(12, list2.size());
+        System.out.println(list2.size());
     }
 }
